@@ -12,7 +12,10 @@ from module.img_test import *
 from module.method_test import *
 
 
-st.markdown("<h1 style='text-align: center;'>Untilt Demo</h1>", unsafe_allow_html=True)
+st.markdown(
+    "<h1 style='text-align: center;'>Eye Image Tilt Correction Demo</h1>",
+    unsafe_allow_html=True,
+)
 
 with st.container():
     col1, col2, col3 = st.columns([2, 2, 2])
