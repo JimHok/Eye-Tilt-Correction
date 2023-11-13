@@ -494,7 +494,7 @@ def normalization_eye(img, pupil_circle, iris_circle, M=64, N=400, offset=0):
             ]
         )
 
-    return normalized, np.array(map_area)
+    return normalized, map_area
 
 
 def normalization_seg(img, pupil_circle, iris_circle, M=64, N=400, offset=0):

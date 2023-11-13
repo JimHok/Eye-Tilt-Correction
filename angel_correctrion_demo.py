@@ -33,32 +33,52 @@ angle = st.number_input(
 
 st.write("")
 with st.container():
-    col1, col2, col3 = st.columns([2, 2, 2])
+    col1, col2 = st.columns([2, 2])
     with col1:
-        button_poress = st.button("Run Iris Demo", type="primary")
+        button_iris = st.button(
+            "Run Iris Demo", type="primary", use_container_width=True
+        )
     with col2:
-        button_m1 = st.button("Run Method 1", type="primary")
-    with col3:
-        button_m2 = st.button("Run Method 2", type="primary")
+        button_eye = st.button("Run Eye Demo", type="primary", use_container_width=True)
+
+    # with col2:
+    #     button_m1 = st.button("Run Method 1", type="primary")
+    # with col3:
+    #     button_m2 = st.button("Run Method 2", type="primary")
 
 with st.container():
-    col1, col2, col3 = st.columns([2, 2, 2])
+    col1, col2 = st.columns([2, 2])
     with col1:
-        button_iris_result = st.button("Show Iris Test Result", type="primary")
+        button_iris_result = st.button(
+            "Show Iris Test Result", type="primary", use_container_width=True
+        )
     with col2:
-        button_eye_result = st.button("Show Eye Test Result", type="primary")
+        button_eye_result = st.button(
+            "Show Eye Test Result", type="primary", use_container_width=True
+        )
 
 st.write("")
-if button_poress:
+if button_iris:
     IrisProcessor(
-        img_num, img_side, img_take, set_angle=angle, plot=True, stlit=True
+        img_num, img_side, img_take, set_angle=angle, expand=True, plot=True, stlit=True
     ).process()
 
-if button_m1:
-    method_1(img_num, img_side, img_take)
+if button_eye:
+    EyeProcessor(
+        img_num,
+        img_side,
+        img_take,
+        set_angle=angle,
+        expand=False,
+        plot=True,
+        stlit=True,
+    ).process()
 
-if button_m2:
-    method_2(img_num, img_side, img_take, angle)
+# if button_m1:
+#     method_1(img_num, img_side, img_take)
+
+# if button_m2:
+#     method_2(img_num, img_side, img_take, angle)
 
 if button_iris_result:
     image = Image.open(f"output/iris_LR_500_hist_sep.png")
