@@ -1,6 +1,6 @@
 import numpy as np
 from matplotlib import pyplot as plt
-from module.iris_recog import *
+from module.recog import *
 from PIL import Image
 import random
 from typing import List, Tuple
@@ -16,7 +16,7 @@ def rotate_image(img, angle=None, expand=True):
     # Open the image file
     image = img
 
-    reference_color = image.getpixel((image.size[0]/2, 0))
+    reference_color = image.getpixel((image.size[0] / 2, 0))
 
     # Rotate the image by a random degree
     if angle == None:

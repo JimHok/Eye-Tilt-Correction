@@ -20,7 +20,7 @@ class ImageProcessor:
         self.masks = []
 
     def read_image(self):
-        return read_image(
+        return Loc().read_image(
             f"C:/Users/jimyj/Desktop/TAIST/Thesis/Source_Code/main/Iris-Dataset/CASIA-Iris-Thousand/{str(self.img_num).zfill(3)}/{self.img_side}/S5{str(self.img_num).zfill(3)}{self.img_side}{str(self.img_take).zfill(2)}.jpg"
         )
 
@@ -51,7 +51,7 @@ class IrisProcessor(ImageProcessor):
         for i in range(len(self.imgs)):
             img = self.imgs[i]
 
-            iris_loc = IrisLoc(img=img)
+            iris_loc = Loc(img=img)
             _, snake, circles = iris_loc.localization(N=400)
             # _, snake, circles = localization(img, N=400)
             pupil_circle = circles
@@ -63,16 +63,27 @@ class IrisProcessor(ImageProcessor):
                 print(f"No Iris on: {self.img_num} {self.img_side} {self.img_take}")
                 return 100, 100, 100
             else:
-                iris_norm, map_area = normalization(img, pupil_circle, iris_circle)
-                romv_img, noise_img = lash_removal_daugman(iris_norm, thresh=50)
-                template, mask_noise = encode_iris(
-                    romv_img, noise_img, minw_length=18, mult=1, sigma_f=0.5
+                iris_norm = Norm(img, pupil_circle, iris_circle)
+                norm, map_area = iris_norm.normalization()
+                romv_img, noise_img = iris_loc.lash_removal_daugman(norm, thresh=50)
+                iris_match = Match(
+                    img, snake, circles, minw_length=18, mult=1, sigma_f=0.5
                 )
+                template, mask_noise = iris_match.encode_iris(romv_img, noise_img)
+                # iris_norm, map_area = normalization(img, pupil_circle, iris_circle)
+                # romv_img, noise_img = lash_removal_daugman(iris_norm, thresh=50)
+                # template, mask_noise = encode_iris(
+                #     romv_img, noise_img, minw_length=18, mult=1, sigma_f=0.5
+                # )
                 self.templates.append(template)
                 self.masks.append(mask_noise)
-        hd_raw, shift = HammingDistance(
+
+        hd_raw, shift = iris_match.HammingDistance(
             self.templates[0], self.masks[0], self.templates[1], self.masks[1]
         )
+        # hd_raw, shift = HammingDistance(
+        #     self.templates[0], self.masks[0], self.templates[1], self.masks[1]
+        # )
         counter_img = Image.fromarray(self.imgs[1]).rotate(360 / 400 * shift)
         counter_img = crop_image(self.img_ref, counter_img)
         if self.plot:
@@ -131,17 +142,25 @@ class EyeProcessor(ImageProcessor):
                 self.pupil_circles.append(pupil_circle)
                 eye_circle = circle_eye
                 self.eye_circles.append(eye_circle)
-                eye_norm, map_area = normalization_eye(
-                    img, pupil_circle, eye_circle, M=128, N=800
-                )
-                romv_img, noise_img = lash_removal_daugman(eye_norm, thresh=0)
-                template, mask_noise = encode_iris(
-                    romv_img, noise_img, minw_length=18, mult=1, sigma_f=0.5
-                )
+
+                eye_loc = Loc(img=img)
+                eye_norm = Norm(img, pupil_circle, eye_circle, N=800)
+                norm, map_area = eye_norm.normalization_eye()
+                romv_img, noise_img = eye_loc.lash_removal_daugman(norm, thresh=0)
+                iris_match = Match(img, None, None, minw_length=18, mult=1, sigma_f=0.5)
+                template, mask_noise = iris_match.encode_iris(romv_img, noise_img)
+
+                # eye_norm, map_area = normalization_eye(
+                #     img, pupil_circle, eye_circle, M=128, N=800
+                # )
+                # romv_img, noise_img = lash_removal_daugman(eye_norm, thresh=0)
+                # template, mask_noise = encode_iris(
+                #     romv_img, noise_img, minw_length=18, mult=1, sigma_f=0.5
+                # )
                 self.templates.append(template)
-                self.nroms.append(eye_norm)
+                self.nroms.append(norm)
                 self.masks.append(mask_noise)
-        hd_raw, shift = HammingDistance(
+        hd_raw, shift = iris_match.HammingDistance(
             self.templates[0], self.masks[0], self.templates[1], self.masks[1]
         )
         counter_img = Image.fromarray(self.imgs[1]).rotate(360 / 800 * shift)

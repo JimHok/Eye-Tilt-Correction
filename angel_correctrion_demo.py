@@ -5,7 +5,7 @@ from typing import List, Tuple
 import numpy as np
 from matplotlib import pyplot as plt
 
-from module.iris_recog import *
+from module.recog import *
 from module.img_rotate import *
 from module.img_process import *
 from module.img_test import *
