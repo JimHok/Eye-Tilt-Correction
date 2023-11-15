@@ -1,4 +1,5 @@
 import numpy as np
+import os
 from module.img_rotate import *
 from module.img_test import *
 from module.densenet_seg.test import *
@@ -31,31 +32,69 @@ class ImageProcessor:
         return img_rot, angle
 
 
-class IrisProcessor(ImageProcessor):
+class TestProcessor:
+    def __init__(self, img_num, img_take):
+        self.img_num = img_num
+        self.img_take = img_take
+        self.path = "C:/Users/jimyj/Desktop/TAIST/Tokyo Tech Exchange/image/Iris_data/"
+        self.img_ref = self.read_ref_img()
+        self.img_rot, self.angle = self.read_rot_img()
+        self.imgs = [self.img_ref, self.img_rot]
+        self.pupil_circles = []
+        self.templates = []
+        self.masks = []
+
+    def read_ref_img(self):
+        img_names = os.listdir(f"{self.path}{str(self.img_num)}0/")
+        return Loc().read_image(
+            f"{self.path}{str(self.img_num)}0/{img_names[self.img_take]}"
+        )
+
+    def read_rot_img(self):
+        img_names = os.listdir(f"{self.path}{str(self.img_num)}1/")
+        return (
+            Loc().read_image(
+                f"{self.path}{str(self.img_num)}1/{img_names[self.img_take]}"
+            ),
+            -45,
+        )
+
+
+class IrisProcessor:
     def __init__(
         self,
+        processor_type,
         img_num,
-        img_side,
-        img_take,
+        img_side=None,
+        img_take=None,
         set_angle=None,
         expand=True,
         plot=False,
         stlit=False,
     ):
-        super().__init__(img_num, img_side, img_take, set_angle, expand)
+        self.processor = None
+        if processor_type == "CASIA":
+            self.processor = ImageProcessor(
+                img_num, img_side, img_take, set_angle, expand
+            )
+        elif processor_type == "Own":
+            self.processor = TestProcessor(img_num, img_take)
+        else:
+            raise ValueError('Invalid processor_type. Must be "CASIA" or "Own".')
+
         self.plot = plot
         self.stlit = stlit
         self.snakes = []
 
     def process(self):
-        for i in range(len(self.imgs)):
-            img = self.imgs[i]
+        for i in range(len(self.processor.imgs)):
+            img = self.processor.imgs[i]
 
             iris_loc = Loc(img=img)
             _, snake, circles = iris_loc.localization(N=400)
             # _, snake, circles = localization(img, N=400)
             pupil_circle = circles
-            self.pupil_circles.append(pupil_circle)
+            self.processor.pupil_circles.append(pupil_circle)
             iris_circle = np.flip(np.array(snake).astype(int), 1)
             self.snakes.append(snake)
 
@@ -75,42 +114,55 @@ class IrisProcessor(ImageProcessor):
                 # template, mask_noise = encode_iris(
                 #     romv_img, noise_img, minw_length=18, mult=1, sigma_f=0.5
                 # )
-                self.templates.append(template)
-                self.masks.append(mask_noise)
+                self.processor.templates.append(template)
+                self.processor.masks.append(mask_noise)
 
         hd_raw, shift = iris_match.HammingDistance(
-            self.templates[0], self.masks[0], self.templates[1], self.masks[1]
+            self.processor.templates[0],
+            self.processor.masks[0],
+            self.processor.templates[1],
+            self.processor.masks[1],
         )
         # hd_raw, shift = HammingDistance(
         #     self.templates[0], self.masks[0], self.templates[1], self.masks[1]
         # )
-        counter_img = Image.fromarray(self.imgs[1]).rotate(360 / 400 * shift)
-        counter_img = crop_image(self.img_ref, counter_img)
+        counter_img = Image.fromarray(self.processor.imgs[1]).rotate(360 / 400 * shift)
+        counter_img = crop_image(self.processor.img_ref, counter_img)
         if self.plot:
             plot_results(
-                [self.img_ref, self.img_rot, counter_img],
-                self.pupil_circles,
+                [self.processor.img_ref, self.processor.img_rot, counter_img],
+                self.processor.pupil_circles,
                 self.snakes,
-                self.templates,
-                self.angle,
+                self.processor.templates,
+                self.processor.angle,
                 round(360 / 400 * shift),
                 self.stlit,
             )
-        return hd_raw, self.angle, shift
+        return hd_raw, self.processor.angle, shift
 
 
-class EyeProcessor(ImageProcessor):
+class EyeProcessor:
     def __init__(
         self,
+        processor_type,
         img_num,
-        img_side,
-        img_take,
+        img_side=None,
+        img_take=None,
         set_angle=None,
         expand=True,
         plot=False,
         stlit=False,
     ):
-        super().__init__(img_num, img_side, img_take, set_angle, expand)
+        self.processor = None
+        if processor_type == "CASIA":
+            self.processor = ImageProcessor(
+                img_num, img_side, img_take, set_angle, expand
+            )
+        elif processor_type == "Own":
+            self.processor = TestProcessor(img_num, img_take)
+        else:
+            raise ValueError('Invalid processor_type. Must be "CASIA" or "Own".')
+
         self.plot = plot
         self.stlit = stlit
         self.eye_circles = []
@@ -119,8 +171,8 @@ class EyeProcessor(ImageProcessor):
         self.model_path = "model/densenet_seg.pkl"
 
     def process(self):
-        for i in range(len(self.imgs)):
-            img = self.imgs[i]
+        for i in range(len(self.processor.imgs)):
+            img = self.processor.imgs[i]
             img, img_seg = run_prediction(
                 img, self.model_name, self.model_path, use_gpu=True
             )
@@ -137,9 +189,9 @@ class EyeProcessor(ImageProcessor):
                     np.array(contours_pupil[0], dtype=np.float32)
                 )
                 circle_pupil = (int(x), int(y), int(rad))
-                circle_eye = (int(x), int(y), int(rad * 7))
+                circle_eye = (int(x), int(y), int(max(img.shape) // 2))
                 pupil_circle = circle_pupil
-                self.pupil_circles.append(pupil_circle)
+                self.processor.pupil_circles.append(pupil_circle)
                 eye_circle = circle_eye
                 self.eye_circles.append(eye_circle)
 
@@ -157,22 +209,25 @@ class EyeProcessor(ImageProcessor):
                 # template, mask_noise = encode_iris(
                 #     romv_img, noise_img, minw_length=18, mult=1, sigma_f=0.5
                 # )
-                self.templates.append(template)
+                self.processor.templates.append(template)
                 self.nroms.append(norm)
-                self.masks.append(mask_noise)
+                self.processor.masks.append(mask_noise)
         hd_raw, shift = iris_match.HammingDistance(
-            self.templates[0], self.masks[0], self.templates[1], self.masks[1]
+            self.processor.templates[0],
+            self.processor.masks[0],
+            self.processor.templates[1],
+            self.processor.masks[1],
         )
-        counter_img = Image.fromarray(self.imgs[1]).rotate(360 / 800 * shift)
-        counter_img = crop_image(self.img_ref, counter_img)
+        counter_img = Image.fromarray(self.processor.imgs[1]).rotate(360 / 800 * shift)
+        counter_img = crop_image(self.processor.img_ref, counter_img)
         if self.plot:
             plot_results(
-                [self.img_ref, self.img_rot, counter_img],
-                self.pupil_circles,
+                [self.processor.img_ref, self.processor.img_rot, counter_img],
+                self.processor.pupil_circles,
                 self.eye_circles,
-                self.templates,
-                self.angle,
+                self.processor.templates,
+                self.processor.angle,
                 round(360 / 800 * shift),
                 self.stlit,
             )
-        return hd_raw, self.angle, shift
+        return hd_raw, self.processor.angle, shift

@@ -20,19 +20,42 @@ st.markdown(
 with st.container():
     col1, col2, col3 = st.columns([2, 2, 2])
     with col1:
-        img_num = st.number_input(
-            "Image Number", min_value=0, max_value=999, step=1, value=10, format="%d"
-        )
+        processor_type = st.selectbox("Dataset", ["CASIA", "Own"])
     with col2:
-        img_side = st.selectbox("Image Side", ["L", "R"])
-    with col3:
-        img_take = st.number_input(
-            "Image Take", min_value=0, max_value=9, step=1, value=1, format="%d"
+        start_val = 10 if processor_type == "CASIA" else 0
+        max_val = 999 if processor_type == "CASIA" else 1
+        img_num = st.number_input(
+            "Image Number",
+            min_value=0,
+            max_value=max_val,
+            step=1,
+            value=start_val,
+            format="%d",
         )
 
-angle = st.number_input(
-    "Set Angle", min_value=-90, max_value=90, step=1, value=0, format="%d"
-)
+    with col3:
+        img_take = st.number_input(
+            "Image Take", min_value=0, max_value=9, step=1, value=0, format="%d"
+        )
+
+with st.container():
+    col1, col2 = st.columns([2, 2])
+    with col1:
+        img_side = st.selectbox(
+            "Image Side",
+            ["L", "R"],
+            disabled=False if processor_type == "CASIA" else True,
+        )
+    with col2:
+        angle = st.number_input(
+            "Set Angle",
+            min_value=-90,
+            max_value=90,
+            step=1,
+            value=0 if processor_type == "CASIA" else -45,
+            format="%d",
+            disabled=False if processor_type == "CASIA" else True,
+        )
 
 st.write("")
 with st.container():
@@ -63,11 +86,19 @@ with st.container():
 st.write("")
 if button_iris:
     IrisProcessor(
-        img_num, img_side, img_take, set_angle=angle, expand=True, plot=True, stlit=True
+        processor_type,
+        img_num,
+        img_side,
+        img_take,
+        set_angle=angle,
+        expand=True,
+        plot=True,
+        stlit=True,
     ).process()
 
 if button_eye:
     EyeProcessor(
+        processor_type,
         img_num,
         img_side,
         img_take,
