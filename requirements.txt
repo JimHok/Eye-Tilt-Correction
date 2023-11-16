@@ -2,4 +2,4 @@ scikit-image
 matplotlib
 scipy
 tqdm
-opencv-python
+opencv-contrib-python
