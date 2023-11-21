@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 def run_prediction(img, model_name, model_path, use_gpu=True, plot=False):
     device = torch.device("cuda" if use_gpu else "cpu")
     model = model_dict[model_name].to(device)
-    model.load_state_dict(torch.load(model_path, map_location=torch.device("cpu")))
+    model.load_state_dict(torch.load(model_path))
     model.eval()
     # img = plt.imread(image_path)
     img = transform(img)
