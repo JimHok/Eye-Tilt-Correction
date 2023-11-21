@@ -5,3 +5,5 @@ tqdm
 opencv-python-headless
 imutils
 torch
+torchvision
+scikit-learn
