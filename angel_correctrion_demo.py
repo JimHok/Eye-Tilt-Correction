@@ -20,7 +20,7 @@ st.markdown(
 with st.container():
     col1, col2, col3 = st.columns([2, 2, 2])
     with col1:
-        processor_type = st.selectbox("Dataset", ["CASIA", "Own"])
+        processor_type = st.selectbox("Dataset", ["CASIA"])
     with col2:
         start_val = 10 if processor_type == "CASIA" else 0
         max_val = 999 if processor_type == "CASIA" else 1
