@@ -1,10 +1,10 @@
 scikit-image
-matplotlib
+scikit-learn
 scipy
+opencv-python-headless
+matplotlib
 tqdm
 imutils
 torch
 torchvision
-scikit-learn
 mediapipe
-opencv-python-headless
