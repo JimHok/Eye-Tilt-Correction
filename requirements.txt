@@ -3,3 +3,6 @@ matplotlib
 scipy
 tqdm
 opencv-contrib-python
+ffmpeg
+libsm6
+libxext6
