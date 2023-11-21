@@ -7,3 +7,4 @@ imutils
 torch
 torchvision
 scikit-learn
+mediapipe
