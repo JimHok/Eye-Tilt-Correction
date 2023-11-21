@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 def run_prediction(img, model_name, model_path, use_gpu=True, plot=False):
     device = torch.device("cuda" if use_gpu else "cpu")
     model = model_dict[model_name].to(device)
-    model.load_state_dict(torch.load(model_path))
+    model.load_state_dict(torch.load(model_path, map_location=torch.device("cpu")))
     model.eval()
     # img = plt.imread(image_path)
     img = transform(img)
@@ -17,7 +17,7 @@ def run_prediction(img, model_name, model_path, use_gpu=True, plot=False):
     with torch.no_grad():
         output = model(img)
         predict = get_predictions(output)
-        pred_img = predict[0].cpu().numpy()/3.0
+        pred_img = predict[0].cpu().numpy() / 3.0
         inp = img.squeeze().cpu().numpy() * 0.5 + 0.5
         img_orig = np.clip(inp, 0, 1)
         img_orig = np.array(img_orig)
