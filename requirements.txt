@@ -2,5 +2,4 @@ scikit-image
 matplotlib
 scipy
 tqdm
-opencv-contrib-python
-ffmpeg
+opencv-python-headless
