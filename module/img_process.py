@@ -174,7 +174,7 @@ class EyeProcessor:
         for i in range(len(self.processor.imgs)):
             img = self.processor.imgs[i]
             img, img_seg = run_prediction(
-                img, self.model_name, self.model_path, use_gpu=True
+                img, self.model_name, self.model_path, use_gpu=False
             )
             if len(measure.find_contours(img_seg, 0.9)) == 0:
                 print(
