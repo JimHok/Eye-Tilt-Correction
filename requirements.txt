@@ -2,9 +2,9 @@ scikit-image
 matplotlib
 scipy
 tqdm
-opencv-python-headless
 imutils
 torch
 torchvision
 scikit-learn
 mediapipe
+opencv-python-headless
