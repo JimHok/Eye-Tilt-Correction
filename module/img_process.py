@@ -22,7 +22,7 @@ class ImageProcessor:
 
     def read_image(self):
         return Loc().read_image(
-            f"C:/Users/jimyj/Desktop/TAIST/Thesis/Source_Code/main/Iris-Dataset/CASIA-Iris-Thousand/{str(self.img_num).zfill(3)}/{self.img_side}/S5{str(self.img_num).zfill(3)}{self.img_side}{str(self.img_take).zfill(2)}.jpg"
+            f"image/CASIA-Iris-Thousand/{str(self.img_num).zfill(3)}/{self.img_side}/S5{str(self.img_num).zfill(3)}{self.img_side}{str(self.img_take).zfill(2)}.jpg"
         )
 
     def rotate_images(self):
