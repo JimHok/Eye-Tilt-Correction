@@ -4,3 +4,4 @@ scipy
 tqdm
 opencv-python-headless
 imutils
+torch
