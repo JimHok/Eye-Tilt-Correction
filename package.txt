@@ -5,3 +5,4 @@ libglib2.0-0
 ffmpeg
 libsm6
 libxext6
+python3-opencv

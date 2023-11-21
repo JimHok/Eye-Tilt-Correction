@@ -2,4 +2,5 @@ scikit-image
 matplotlib
 scipy
 tqdm
-python3-opencv
+opencv-contrib-python
+ffmpeg
