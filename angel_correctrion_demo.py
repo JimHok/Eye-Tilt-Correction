@@ -60,13 +60,13 @@ with st.container():
 
 st.write("")
 
-if "users" not in server_state:
-    server_state.users = 0
-
-
 with server_state_lock["users"]:  # Lock the "count" state for thread-safety
     if "users" not in server_state:
         server_state.users = 0
+
+
+def update_users():
+    server_state.users = 1
 
 
 with st.container():
