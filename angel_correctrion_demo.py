@@ -1,4 +1,5 @@
 import streamlit as st
+from streamlit_server_state import server_state, server_state_lock
 from PIL import Image
 import random
 from typing import List, Tuple
@@ -58,14 +59,35 @@ with st.container():
         )
 
 st.write("")
+
+if "users" not in server_state:
+    server_state.users = 0
+
+
+def update_users():
+    server_state.users = 1
+
+
 with st.container():
     col1, col2 = st.columns([2, 2])
     with col1:
         button_iris = st.button(
-            "Run Iris Demo", type="primary", use_container_width=True
+            "Run Iris Demo",
+            type="primary",
+            on_click=update_users,
+            # args=(processor_type, img_num, img_side, img_take, angle),
+            disabled=False if server_state.users == 0 else True,
+            use_container_width=True,
         )
     with col2:
-        button_eye = st.button("Run Eye Demo", type="primary", use_container_width=True)
+        button_eye = st.button(
+            "Run Eye Demo",
+            type="primary",
+            on_click=update_users,
+            # args=(processor_type, img_num, img_side, img_take, angle),
+            disabled=False if server_state.users == 0 else True,
+            use_container_width=True,
+        )
 
     # with col2:
     #     button_m1 = st.button("Run Method 1", type="primary")
@@ -95,6 +117,9 @@ if button_iris:
         plot=True,
         stlit=True,
     ).process()
+    server_state.users = 0
+    if server_state.users == 1:
+        st.warning("Please wait for other user to finish!")
 
 if button_eye:
     EyeProcessor(
@@ -107,6 +132,9 @@ if button_eye:
         plot=True,
         stlit=True,
     ).process()
+    server_state.users = 0
+    if server_state.users == 1:
+        st.warning("Please wait for other user to finish!")
 
 # if button_m1:
 #     method_1(img_num, img_side, img_take)
