@@ -18,6 +18,11 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+st.warning(
+    "Due to server limitation, demo can only allow one user to run at a time, and the button will be disabled when other user is running the demo, thank you for your patience.",
+    icon="🚨",
+)
+
 with st.container():
     col1, col2, col3 = st.columns([2, 2, 2])
     with col1:
