@@ -64,8 +64,9 @@ if "users" not in server_state:
     server_state.users = 0
 
 
-def update_users():
-    server_state.users = 1
+with server_state_lock["users"]:  # Lock the "count" state for thread-safety
+    if "users" not in server_state:
+        server_state.users = 0
 
 
 with st.container():
@@ -106,7 +107,8 @@ with st.container():
         )
 
 st.write("")
-if button_iris:
+@st.cache_data(max_entries=1)
+def iris_demo(processor_type, img_num, img_side, img_take, angle):
     IrisProcessor(
         processor_type,
         img_num,
@@ -117,11 +119,10 @@ if button_iris:
         plot=True,
         stlit=True,
     ).process()
-    server_state.users = 0
-    if server_state.users == 1:
-        st.warning("Please wait for other user to finish!")
 
-if button_eye:
+
+@st.cache_data(max_entries=1)
+def eye_demo(processor_type, img_num, img_side, img_take, angle):
     EyeProcessor(
         processor_type,
         img_num,
@@ -132,9 +133,18 @@ if button_eye:
         plot=True,
         stlit=True,
     ).process()
-    server_state.users = 0
-    if server_state.users == 1:
-        st.warning("Please wait for other user to finish!")
+
+
+if button_iris:
+    iris_demo(processor_type, img_num, img_side, img_take, angle)
+    with server_state_lock["users"]:
+        server_state.users = 0
+
+
+if button_eye:
+    eye_demo(processor_type, img_num, img_side, img_take, angle)
+    with server_state_lock["users"]:
+        server_state.users = 0
 
 # if button_m1:
 #     method_1(img_num, img_side, img_take)
