@@ -8,3 +8,4 @@ imutils
 torch
 torchvision
 mediapipe
+streamlit-server-state
