@@ -36,7 +36,7 @@ class TestProcessor:
     def __init__(self, img_num, img_take):
         self.img_num = img_num
         self.img_take = img_take
-        self.path = "C:/Users/jimyj/Desktop/TAIST/Tokyo Tech Exchange/image/Iris_data/"
+        self.path = "D:/Users/jimyj/Desktop/TAIST/Tokyo Tech Exchange/image/Iris_data/"
         self.img_ref = self.read_ref_img()
         self.img_rot, self.angle = self.read_rot_img()
         self.imgs = [self.img_ref, self.img_rot]

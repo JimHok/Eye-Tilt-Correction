@@ -20,7 +20,7 @@ def method_1(img_num, img_side, img_take):
     gpu = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     img = cv2.imread(
-        f"C:/Users/jimyj/Desktop/TAIST/Thesis/Source_Code/main/Iris-Dataset/CASIA-Iris-Thousand/{str(img_num).zfill(3)}/{img_side}/S5{str(img_num).zfill(3)}{img_side}{str(img_take).zfill(2)}.jpg"
+        f"D:/Users/jimyj/Desktop/TAIST/Thesis/Source_Code/main/Iris-Dataset/CASIA-Iris-Thousand/{str(img_num).zfill(3)}/{img_side}/S5{str(img_num).zfill(3)}{img_side}{str(img_take).zfill(2)}.jpg"
     )
     img, angle = rotate_image(Image.fromarray(img))
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -45,7 +45,7 @@ def method_2(img_num, img_side, img_take, angle):
     model_name = "densenet"
     model_path = "model/densenet_seg.pkl"
     img = Loc().read_image(
-        f"C:/Users/jimyj/Desktop/TAIST/Thesis/Source_Code/main/Iris-Dataset/CASIA-Iris-Thousand/{str(img_num).zfill(3)}/{img_side}/S5{str(img_num).zfill(3)}{img_side}{str(img_take).zfill(2)}.jpg"
+        f"D:/Users/jimyj/Desktop/TAIST/Thesis/Source_Code/main/Iris-Dataset/CASIA-Iris-Thousand/{str(img_num).zfill(3)}/{img_side}/S5{str(img_num).zfill(3)}{img_side}{str(img_take).zfill(2)}.jpg"
     )
     img_rot, angle = rotate_image(Image.fromarray(img), expand=False, angle=angle)
     img_rot, img_seg = run_prediction(img_rot, model_name, model_path, use_gpu=True)

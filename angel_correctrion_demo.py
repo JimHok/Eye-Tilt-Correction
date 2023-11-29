@@ -1,9 +1,11 @@
-import streamlit as st
 from PIL import Image
 import random
 from typing import List, Tuple
 import numpy as np
 from matplotlib import pyplot as plt
+import streamlit as st
+from streamlit_server_state import server_state, server_state_lock
+import time
 
 from module.recog import *
 from module.img_rotate import *
@@ -15,6 +17,11 @@ from module.method_test import *
 st.markdown(
     "<h1 style='text-align: center;'>Eye Image Tilt Correction Demo</h1>",
     unsafe_allow_html=True,
+)
+
+st.warning(
+    "Due to server limitation, demo can only allow one user to run at a time, and the button will be disabled when other user is running the demo, thank you for your patience.",
+    icon="🚨",
 )
 
 with st.container():
@@ -58,14 +65,36 @@ with st.container():
         )
 
 st.write("")
+
+with server_state_lock["users"]:  # Lock the "count" state for thread-safety
+    if "users" not in server_state:
+        server_state.users = 0
+
+
+def update_users():
+    server_state.users = 1
+
+
 with st.container():
     col1, col2 = st.columns([2, 2])
     with col1:
         button_iris = st.button(
-            "Run Iris Demo", type="primary", use_container_width=True
+            "Run Iris Demo",
+            type="primary",
+            on_click=update_users,
+            # args=(processor_type, img_num, img_side, img_take, angle),
+            disabled=False if server_state.users == 0 else True,
+            use_container_width=True,
         )
     with col2:
-        button_eye = st.button("Run Eye Demo", type="primary", use_container_width=True)
+        button_eye = st.button(
+            "Run Eye Demo",
+            type="primary",
+            on_click=update_users,
+            # args=(processor_type, img_num, img_side, img_take, angle),
+            disabled=False if server_state.users == 0 else True,
+            use_container_width=True,
+        )
 
     # with col2:
     #     button_m1 = st.button("Run Method 1", type="primary")
@@ -84,7 +113,10 @@ with st.container():
         )
 
 st.write("")
-if button_iris:
+
+
+@st.cache_data(max_entries=1)
+def iris_demo(processor_type, img_num, img_side, img_take, angle):
     IrisProcessor(
         processor_type,
         img_num,
@@ -96,7 +128,9 @@ if button_iris:
         stlit=True,
     ).process()
 
-if button_eye:
+
+@st.cache_data(max_entries=1)
+def eye_demo(processor_type, img_num, img_side, img_take, angle):
     EyeProcessor(
         processor_type,
         img_num,
@@ -107,6 +141,20 @@ if button_eye:
         plot=True,
         stlit=True,
     ).process()
+
+
+if button_iris:
+    iris_demo(processor_type, img_num, img_side, img_take, angle)
+    with server_state_lock["users"]:
+        server_state.users = 0
+
+
+if button_eye:
+    eye_demo(processor_type, img_num, img_side, img_take, angle)
+    with server_state_lock["users"]:
+        server_state.users = 0
+
+# if server_state.users == 1:
 
 # if button_m1:
 #     method_1(img_num, img_side, img_take)
